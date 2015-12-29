@@ -27,6 +27,8 @@ import java.util.HashSet;
 import java.util.List;
 
 import me.zsj.rxwechatimageselect.R;
+import me.zsj.rxwechatimageselect.listener.OnPictureClickListener;
+import me.zsj.rxwechatimageselect.listener.OnPictureListItemClickListener;
 import me.zsj.rxwechatimageselect.model.Picture;
 import rx.Observable;
 import rx.Subscriber;
@@ -84,18 +86,31 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void setupRecyclerView() {
-        mPictureAdapter = new PictureAdapter(this, mPictureListPath);
+        mPictureAdapter = new PictureAdapter(this, mPictureListPath, mToolbar);
         mRecyclerView.setAdapter(mPictureAdapter);
         mPictureAdapter.setOnPictureClickListener(getPictureClickListener());
     }
 
-    private PictureAdapter.onPictureClickListener getPictureClickListener() {
-        return new PictureAdapter.onPictureClickListener() {
+    private OnPictureClickListener getPictureClickListener() {
+        return new OnPictureClickListener() {
             @Override
             public void onPictureClick(List<String> picturePaths) {
                 Log.e("picture paths", picturePaths.toString());
             }
         };
+    }
+
+    private List<String> getFilePictures(File pictureDir) {
+        return Arrays.asList(pictureDir.list(new FilenameFilter() {
+            @Override
+            public boolean accept(File dir, String filename) {
+                if (filename.endsWith(".jpg")
+                        || filename.endsWith(".png")
+                        || filename.endsWith(".jpeg"))
+                    return true;
+                return false;
+            }
+        }));
     }
 
     private void fetchPicture() {
@@ -106,8 +121,8 @@ public class MainActivity extends AppCompatActivity
                 .map(new Func1<List<Picture>, List<String>>() {
                     @Override
                     public List<String> call(List<Picture> pictureList) {
-                        createPicturePath(pictureList.get(0).getPictureDir(),
-                                Arrays.asList(pictureList.get(0).getPictureDir().list()));
+                        File pictureDir = pictureList.get(0).getPictureDir();
+                        createPicturePath(pictureDir, getFilePictures(pictureDir));
                         return mPictureListPath;
                     }
                 })
@@ -212,23 +227,13 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void pictureListClick(PictureListAdapter pictureListAdapter) {
-        pictureListAdapter.setOnPictureListItemClickListener(
-                new PictureListAdapter.OnPictureListItemClickListener() {
+        pictureListAdapter.setOnPictureListItemClickListener(new OnPictureListItemClickListener() {
                     @Override
                     public void onPictureListClick(Picture picture) {
                         mPictureListLayoutAnimation.close();
                         mPictureListPath.clear();
                         createPicturePath(picture.getPictureDir(),
-                                Arrays.asList(picture.getPictureDir().list(new FilenameFilter() {
-                                    @Override
-                                    public boolean accept(File dir, String filename) {
-                                        if (filename.endsWith(".jpg")
-                                                || filename.endsWith(".png")
-                                                || filename.endsWith(".jpeg"))
-                                            return true;
-                                        return false;
-                                    }
-                                })));
+                                getFilePictures(picture.getPictureDir()));
                         setCurrentPictureDir(picture.getPictureDir());
                         mPictureAdapter.notifyDataSetChanged();
                     }

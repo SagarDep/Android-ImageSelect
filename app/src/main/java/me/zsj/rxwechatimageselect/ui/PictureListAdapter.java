@@ -2,7 +2,6 @@ package me.zsj.rxwechatimageselect.ui;
 
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,10 +11,10 @@ import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 
-import java.util.Collections;
 import java.util.List;
 
 import me.zsj.rxwechatimageselect.R;
+import me.zsj.rxwechatimageselect.listener.OnPictureListItemClickListener;
 import me.zsj.rxwechatimageselect.model.Picture;
 
 /**
@@ -65,12 +64,12 @@ public class PictureListAdapter extends RecyclerView.Adapter<PictureListAdapter.
 
     class PictureListHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
 
-        ImageView imageView;
-        TextView textPictureSize;
-        TextView textCurrentDir;
-        LinearLayout pictureListLayout;
+        private ImageView imageView;
+        private TextView textPictureSize;
+        private TextView textCurrentDir;
+        private LinearLayout pictureListLayout;
 
-        Picture picture;
+        private Picture picture;
 
         public PictureListHolder(View itemView) {
             super(itemView);
@@ -88,7 +87,4 @@ public class PictureListAdapter extends RecyclerView.Adapter<PictureListAdapter.
         }
     }
 
-    public interface OnPictureListItemClickListener {
-        void onPictureListClick(Picture picture);
-    }
 }
