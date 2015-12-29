@@ -8,8 +8,8 @@ Image Select for Android, use Rxjava.
 <img src="/screenshots/Screenshot_2015-12-29-13-42-20.png" width="360" height="640"/>
 
 ###参考资料
-[http://blog.csdn.net/lmj623565791/article/details/39943731](http://blog.csdn.net/lmj623565791/article/details/39943731)
-[Android-PickPhotos](https://github.com/crosswall/Android-PickPhotos)
+* [http://blog.csdn.net/lmj623565791/article/details/39943731](http://blog.csdn.net/lmj623565791/article/details/39943731)
+* [Android-PickPhotos](https://github.com/crosswall/Android-PickPhotos)
 
 ###LICENSE
 [MIT LICENSE](https://github.com/Assassinss/Android-ImageSelect/new/master?readme=1)
