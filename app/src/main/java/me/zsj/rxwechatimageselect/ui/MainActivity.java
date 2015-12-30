@@ -18,6 +18,7 @@ import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.io.File;
 import java.io.FilenameFilter;
@@ -43,12 +44,12 @@ public class MainActivity extends AppCompatActivity
 
     private Toolbar mToolbar;
     private RecyclerView mRecyclerView;
-    private PictureAdapter mPictureAdapter;
     private FrameLayout mPictureLayout;
     private RelativeLayout mPictureListContent;
-    private PictureListAdapter mPictureListAdapter;
     private TextView mTextViewPath;
 
+    private PictureAdapter mPictureAdapter;
+    private PictureListAdapter mPictureListAdapter;
 
     private HashSet<String> mDirPaths = new HashSet<>();
     private List<Picture> mPictureList = new ArrayList<>();
@@ -118,22 +119,29 @@ public class MainActivity extends AppCompatActivity
             return;
         }
         mSubscription = loadPicture()
-                .map(new Func1<List<Picture>, List<String>>() {
+                .map(new Func1<List<Picture>, String>() {
                     @Override
-                    public List<String> call(List<Picture> pictureList) {
+                    public String call(List<Picture> pictureList) {
                         File pictureDir = pictureList.get(0).getPictureDir();
                         createPicturePath(pictureDir, getFilePictures(pictureDir));
-                        return mPictureListPath;
+                        return mPictureListPath.get(0);
                     }
                 })
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Action1<List<String>>() {
+                .subscribe(new Action1<String>() {
                     @Override
-                    public void call(List<String> strings) {
-                        File file = new File(strings.get(0)).getParentFile();
+                    public void call(String string) {
+                        File file = new File(string).getParentFile();
                         setCurrentPictureDir(file);
                         mPictureAdapter.notifyDataSetChanged();
+                    }
+                }, new Action1<Throwable>() {
+                    @Override
+                    public void call(Throwable throwable) {
+                        throwable.printStackTrace();
+                        Toast.makeText(MainActivity.this, "There is no picture in your device!",
+                                Toast.LENGTH_LONG).show();
                     }
                 });
     }
@@ -163,7 +171,7 @@ public class MainActivity extends AppCompatActivity
                     Picture picture = null;
                     if (mDirPaths.contains(dirPath)) {
                         continue;
-                    }else {
+                    } else {
                         mDirPaths.add(dirPath);
                         picture = new Picture();
                         picture.setFirstPath(firstPath);
@@ -197,7 +205,7 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void createPicturePath(File parentFile, List<String> picturePath) {
-        for (int i = 0; i < picturePath.size(); i ++) {
+        for (int i = 0; i < picturePath.size(); i++) {
             mPictureListPath.add(parentFile.getAbsolutePath() + "/" + picturePath.get(i));
         }
     }
@@ -228,16 +236,16 @@ public class MainActivity extends AppCompatActivity
 
     private void pictureListClick(PictureListAdapter pictureListAdapter) {
         pictureListAdapter.setOnPictureListItemClickListener(new OnPictureListItemClickListener() {
-                    @Override
-                    public void onPictureListClick(Picture picture) {
-                        mPictureListLayoutAnimation.close();
-                        mPictureListPath.clear();
-                        createPicturePath(picture.getPictureDir(),
-                                getFilePictures(picture.getPictureDir()));
-                        setCurrentPictureDir(picture.getPictureDir());
-                        mPictureAdapter.notifyDataSetChanged();
-                    }
-                });
+            @Override
+            public void onPictureListClick(Picture picture) {
+                mPictureListLayoutAnimation.close();
+                mPictureListPath.clear();
+                createPicturePath(picture.getPictureDir(),
+                        getFilePictures(picture.getPictureDir()));
+                setCurrentPictureDir(picture.getPictureDir());
+                mPictureAdapter.notifyDataSetChanged();
+            }
+        });
     }
 
     @Override
@@ -246,7 +254,7 @@ public class MainActivity extends AppCompatActivity
             mPictureListLayoutAnimation.close();
             mIsAnimationClose = true;
             return true;
-        }else {
+        } else {
             return super.onKeyDown(keyCode, event);
         }
     }

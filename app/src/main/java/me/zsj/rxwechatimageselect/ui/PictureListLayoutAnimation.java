@@ -23,7 +23,7 @@ public class PictureListLayoutAnimation implements View.OnClickListener{
     private FrameLayout mCurrentPathLayout;
     private RecyclerView mRecyclerView;
 
-    private ObjectAnimator mOpenAniamtion;
+    private ObjectAnimator mOpenAnimation;
     private ObjectAnimator mCloseAnimation;
 
     private OnShowPictureListListener onShowPictureListListener;
@@ -32,13 +32,14 @@ public class PictureListLayoutAnimation implements View.OnClickListener{
     private boolean mIsClose = true;
     private static final int VIEW_HEIGHT = 0;
     private static final int ANIMATION_DURATION = 300;
+    private static final String ANIMATION_ACTION = "translationY";
 
     public PictureListLayoutAnimation(PictureListBuilder builder) {
         this.mContext = builder.context;
         this.mPictureListView = builder.pictureListView;
         this.mRecyclerView = (RecyclerView) this.mPictureListView.findViewById(R.id.recyclerView_picture_list);
         this.mCurrentPathLayout = builder.currentPathLayout;
-        this.mOpenAniamtion = buildOpenAnimation();
+        this.mOpenAnimation = buildOpenAnimation();
         this.mCloseAnimation = buildCloseAnimation();
         this.onShowPictureListListener = builder.onShowPictureListListener;
         if (mIsClose) {
@@ -49,7 +50,7 @@ public class PictureListLayoutAnimation implements View.OnClickListener{
 
     private ObjectAnimator buildOpenAnimation() {
         ObjectAnimator openAnimation = ObjectAnimator.ofFloat(mPictureListView,
-                "translationY", ScreenUtils.getHeight(mContext), VIEW_HEIGHT);
+                ANIMATION_ACTION, ScreenUtils.getHeight(mContext), VIEW_HEIGHT);
         openAnimation.setDuration(ANIMATION_DURATION);
         openAnimation.addListener(new AnimatorListenerAdapter() {
             @Override
@@ -63,7 +64,7 @@ public class PictureListLayoutAnimation implements View.OnClickListener{
 
     private ObjectAnimator buildCloseAnimation() {
         ObjectAnimator closeAnimation = ObjectAnimator.ofFloat(mPictureListView,
-                "translationY", VIEW_HEIGHT, ScreenUtils.getHeight(mContext));
+                ANIMATION_ACTION, VIEW_HEIGHT, ScreenUtils.getHeight(mContext));
         closeAnimation.setDuration(ANIMATION_DURATION);
         closeAnimation.addListener(new AnimatorListenerAdapter() {
             @Override
@@ -89,7 +90,7 @@ public class PictureListLayoutAnimation implements View.OnClickListener{
     private void open() {
         if (onShowPictureListListener != null)
             onShowPictureListListener.showPictureList(mRecyclerView, mIsClose);
-        mOpenAniamtion.start();
+        mOpenAnimation.start();
     }
 
     public void close() {
@@ -97,7 +98,6 @@ public class PictureListLayoutAnimation implements View.OnClickListener{
     }
 
     public static class PictureListBuilder {
-
         private View pictureListView;
         private FrameLayout currentPathLayout;
         private Context context;
